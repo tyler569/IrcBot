@@ -93,6 +93,7 @@ class IrcBot(object):
                 print("ERROR - could not decode line")
                 #Add more usefulness to this error later
             self.action(text)
+
                     
             #Add the ability to detect several blank packets in a row
             #and either end execition or attempt to reconnect
@@ -107,19 +108,33 @@ class IrcBot(object):
             if p_line[1] == "PING":
                 self.pong(p_line[3])                
             if (p_line[1] == "PRIVMSG" and p_line[2] == self.irc_channel
-                    and p_line[3] == "tyler569: `quit" and 
-                    "OREBuild" in p_line[0]):
-                self.quit()
+                    and ("OREBuild" in p_line[0] or "ORESchool" in
+                    p_line[0])):
+                parse_commands(p_line)
                 
             #Minecraft parsing amounts to if build or school talking,
             #the talker is everything up to that first colon
             #if no colon, message is join/leave message (probably)
-     
+    
+    def parse_commands(self, p_line):
+        #%quit
+        if p_line[3] == self.owner + ": %quit":
+            self.quit()
+            return
+        #%rand
+        if "%rand" in p_line[3]:
+            self.rand()
+            return
+        
+
     def quit(self):
         self.send("Goodbye")
         self.sock.send("QUIT\r\n".encode())
         self.sock.close()
-        return False
+        
+    def rand(self):
+        #do things
+        pass
             
 def main():
     '''main'''
