@@ -9,7 +9,6 @@ Copyright (C) 2014, Tyler Philbick
 All Rights Reserved
 See COPYING for license information
 '''
-#**#**# Make sure to actually add a COPYING before making public #**#**#
 
 #Credit to qwerasd205 for letting me look at a simalier program
 #and gain insight and inspiration.
@@ -97,11 +96,8 @@ class IrcBot(object):
                 if p_line[1] == "PING":
                     self.pong(p_line[3])
                 if (p_line[1] == "PRIVMSG" and p_line[2] == self.irc_channel
-                        and "~" in p_line[3]):
+                        and "~" in p_line[3] and "tyler569" in p_line[3]):
                     self.send("Tilde!")
-                if (p_line[1] == "PRIVMSG" and p_line[2] == self.irc_channel
-                        and "`" in p_line[3]):
-                    self.send("Tilde!", "tyler569")
             #Add the ability to detect several blank packets in a row
             #and either end execition or attempt to reconnect
             #based on a flag perhaps?
@@ -114,7 +110,7 @@ class IrcBot(object):
 def main():
     '''main'''
     #add sys.agrv support for changing input vars to IrcBot?
-    bot = IrcBot(channel="#tbottest")
+    bot = IrcBot()
     bot.connect()
     bot.loop()
 
