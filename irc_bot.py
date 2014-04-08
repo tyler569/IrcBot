@@ -87,26 +87,40 @@ class IrcBot(object):
     def loop(self):
         '''Main execution loop of the bot'''
         while True:
-            text = self.sock.recv(2048).decode()
-            for line in text.split("\r\n"):
-                print(line)
-                p_line = self.parse(line)
-                if not p_line:
-                    continue
-                if p_line[1] == "PING":
-                    self.pong(p_line[3])
-                if (p_line[1] == "PRIVMSG" and p_line[2] == self.irc_channel
-                        and "~" in p_line[3] and "tyler569" in p_line[3]):
-                    self.send("Tilde!")
+            try:
+                text = self.sock.recv(2048).decode()
+            except(UnicodeDecodeError):
+                print("ERROR - could not decode line")
+                #Add more usefulness to this error later
+            self.action(text)
+                    
             #Add the ability to detect several blank packets in a row
             #and either end execition or attempt to reconnect
             #based on a flag perhaps?
-                    
-        #Minecraft parsing amounts to if build or school talking,
-        #the talker is everything up to that first colon
-        #if no colon, message is join/leave message (probably)
+    
+    def action(self, text):
+        for line in text.split("\r\n"):
+            print(line)
+            p_line = self.parse(line)
+            if not p_line:
+                continue
+            if p_line[1] == "PING":
+                self.pong(p_line[3])                
+            if (p_line[1] == "PRIVMSG" and p_line[2] == self.irc_channel
+                    and p_line[3] == "tyler569: `quit" and 
+                    "OREBuild" in p_line[0]):
+                self.quit()
+                
+            #Minecraft parsing amounts to if build or school talking,
+            #the talker is everything up to that first colon
+            #if no colon, message is join/leave message (probably)
+     
+    def quit(self):
+        self.send("Goodbye")
+        self.sock.send("QUIT\r\n".encode())
+        self.sock.close()
+        return False
             
-        
 def main():
     '''main'''
     #add sys.agrv support for changing input vars to IrcBot?
