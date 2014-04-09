@@ -23,7 +23,8 @@ class IrcBot(object):
     
     def __init__(self, host = "irc.freenode.net", port = 6667,
             channel = "#OREServerChat", nick = "tBot569",
-            owner = "tyler569", my_host = "d.vms.pw", silent = False):
+            owner = "tyler569", my_host = "d.vms.pw", silent = False\
+            cmd_char = "`"):
         '''Declarations and Definitions'''
         self.irc_hostname = host
         self.irc_port = port
@@ -34,8 +35,10 @@ class IrcBot(object):
         self.owner = owner
         self.owner_irc = owner
         self.my_hostname = my_host
-        
         self.disable_send = silent
+        self.cmd_char = cmd_char
+        #static definitions
+        self.cmd_dict = {}
 
     def connect(self):
         '''Connects to the IRC server'''
@@ -75,8 +78,12 @@ class IrcBot(object):
         
         if self.disable_send:
             return False
-        send = ["PRIVMSG ", target, " :", message, "\r\n"]
-        self.sock.send("".join(send).encode())
+        send = "PRIVMSG {} :{}\r\n"
+        if type(target) is str:
+            msg = send.format(target, message)
+        elif type(target) is tuple:
+            msg = send.format(target[0], "@" + target[1] + " " + message)
+        self.sock.send(msg.encode())
         print("-SEND: " + message + " --> " + target)
         
     def pong(self, pong_arg):
@@ -86,7 +93,7 @@ class IrcBot(object):
         print(pong)
         
     def read_lines(self, sock, recv_buffer = 1024, delim = "\r\n"):
-        # from https://synack.me/blog/using-python-tcp-sockets
+        #Adapted from https://synack.me/blog/using-python-tcp-sockets
         buffer = ""
         data = True
         while data:
@@ -107,13 +114,35 @@ class IrcBot(object):
                 # print("ERROR - could not decode line")
                 # #Add more usefulness to this error later
             print(t_line)
-            line = ParseLine(t_line)
+            self.line = ParseLine(t_line, self.cmd_char)
             if not line:
                 continue
-            if line.groups[1] == "PING":
-                self.pong(line.groups[3])
-            print(line.groups)
-            print(line.sender)
+            if line.command == "PING":
+                self.pong(self.line.groups[3])
+            if self.line.irc_cmd is not None:
+                try:
+                    cmd_dict[self.line.irc_cmd](*self.line.irc_cmd_args)
+                except(KeyError):
+                    self.send("That command does not exist", self.line.sender)
+            
+    def cmd_hook(self, func):
+        '''Command hook decorator for IRC command functions'''
+        
+        name = func.__name__
+        cmd_dict[name] = func
+        func(self.line.sender, self.line.irc_cmd, *self.line.irc_cmd_args)
+        
+    # Here Begin Command Functions
+    
+    @cmd_hook
+    def add(sender, *args):
+        if len(args) > 0:
+            try:
+                self.send(sum([int(a) for a in args]), sender)
+            except(ValueError):
+                self.send("All arguments of add must be numbers")
+        else:
+            self.send("add requires one ormore arguments")
 
 
         
