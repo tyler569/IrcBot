@@ -14,7 +14,8 @@ See COPYING for license information
 #and gain insight and inspiration.
 
 import socket
-import re
+
+from parse_line import ParseLine
 
 
 class IrcBot(object):
@@ -84,22 +85,35 @@ class IrcBot(object):
         self.sock.send(pong.encode())
         print(pong)
         
+    def read_lines(self, sock, recv_buffer = 4096, delim = "\r\n"):
+        # https://synack.me/blog/using-python-tcp-sockets
+        buffer = ""
+        data = True
+        while data:
+            data = sock.recv(recv_buffer)
+            buffer += data.decode()
+            while buffer.find(delim) != -1:
+                line, buffer = buffer.split(delim, 1)
+                yield line
+        return
+        
     def loop(self):
         '''Main execution loop of the bot'''
-        while True:
-            try:
-                text = self.sock.recv(2048).decode()
-            except(UnicodeDecodeError):
-                print("ERROR - could not decode line")
-                #Add more usefulness to this error later
-
-            for line in text.split("\r\n"):
-                print(line)
-                p_line = self.parse(line)
-                if not p_line:
-                    continue
-                if p_line[1] == "PING":
-                    self.pong(p_line[3])                
+        
+        for t_line in self.read_lines(self.sock):
+            # try:
+                # t_line = b_line.decode()
+            # except(UnicodeDecodeError):
+                # print("ERROR - could not decode line")
+                # #Add more usefulness to this error later
+            print(t_line)
+            line = ParseLine(t_line)
+            if not line:
+                continue
+            if line.groups[1] == "PING":
+                self.pong(line.groups[3])
+            print(line.groups)
+            print(line.sender)
 
 
         
@@ -108,7 +122,7 @@ class IrcBot(object):
 def main():
     '''main'''
     #add sys.agrv support for changing input vars to IrcBot?
-    bot = IrcBot()
+    bot = IrcBot(channel = "#tbottest")
     bot.connect()
     bot.loop()
 
