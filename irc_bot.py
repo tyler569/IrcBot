@@ -92,31 +92,16 @@ class IrcBot(object):
             except(UnicodeDecodeError):
                 print("ERROR - could not decode line")
                 #Add more usefulness to this error later
-            self.action(text)
-    
-    def action(self, text):
-        for line in text.split("\r\n"):
-            print(line)
-            p_line = self.parse(line)
-            if not p_line:
-                continue
-            if p_line[1] == "PING":
-                self.pong(p_line[3])                
-            if (p_line[1] == "PRIVMSG" and p_line[2] == self.irc_channel
-                    and ("OREBuild" in p_line[0] or "ORESchool" in
-                    p_line[0])):
-                parse_commands(p_line)
-    
-    def parse_commands(self, p_line):
-        #%quit
-        if p_line[3] == self.owner + ": %quit":
-            self.quit()
-            return
 
-    def quit(self):
-        self.send("Goodbye")
-        self.sock.send("QUIT\r\n".encode())
-        self.sock.close()
+            for line in text.split("\r\n"):
+                print(line)
+                p_line = self.parse(line)
+                if not p_line:
+                    continue
+                if p_line[1] == "PING":
+                    self.pong(p_line[3])                
+
+
         
 
             
