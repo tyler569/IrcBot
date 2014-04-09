@@ -18,7 +18,7 @@ class ParseLine(object):
     def __init__(self, line):
         try:
             reg_match = \
-                re.match("^(?::(\S+) )?(\S+)(?: (?!:)(.+?))?(?: :(.+))?$",  
+                re.match("^(?::(\S+) )?(\S+)(?: (?!:)(.+?))?(?: :(.+))?$",
                     line)
             #print(reg_match.groups()) # - debug
             self.groups = reg_match.groups()
@@ -29,13 +29,15 @@ class ParseLine(object):
             self.groups = None
             self._valid = False
         
-        if self._valid:
+        if self._valid and self.groups[0] is not None:
             reg_match = re.match("^(\S+?)(?:(?:!(\S+))?@(\S+))?$",
                 self.groups[0])
             #print(reg_match.groups()) # - debug
             self.sender = reg_match.groups()
             #syntax:
             # [nick/server name, username, hostname]
+        else:
+            self.sender = None
             
     def __bool__(self):
         return self._valid

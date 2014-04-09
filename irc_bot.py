@@ -85,8 +85,8 @@ class IrcBot(object):
         self.sock.send(pong.encode())
         print(pong)
         
-    def read_lines(self, sock, recv_buffer = 4096, delim = "\r\n"):
-        # https://synack.me/blog/using-python-tcp-sockets
+    def read_lines(self, sock, recv_buffer = 1024, delim = "\r\n"):
+        # from https://synack.me/blog/using-python-tcp-sockets
         buffer = ""
         data = True
         while data:
@@ -122,7 +122,7 @@ class IrcBot(object):
 def main():
     '''main'''
     #add sys.agrv support for changing input vars to IrcBot?
-    bot = IrcBot(channel = "#tbottest")
+    bot = IrcBot()
     bot.connect()
     bot.loop()
 
