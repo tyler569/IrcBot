@@ -91,7 +91,7 @@ class IrcBot(object):
         elif type(target) is tuple:
             msg = send.format(target[0], "@" + target[1] + " " + message)
         self.sock.send(msg.encode())
-        print("-SEND: " + message + " --> " + target)
+        print("-SEND: " + message + " --> " + str(target))
         
     def pong(self, pong_arg):
         '''Responds to IRC server pings'''
@@ -129,7 +129,8 @@ class IrcBot(object):
             if self.line.command == "PING":
                 self.pong(self.line.groups[3])
             if self.line.irc_cmd is not None:
-                print(self.line.irc_cmd, self.line.irc_cmd_args)
+                print("-CMD:", str(self.line.sender), ":", self.line.irc_cmd,
+                    self.line.irc_cmd_args)
                 try:
                     self.cmd_dict[self.line.irc_cmd](self.line.sender,
                         *self.line.irc_cmd_args)

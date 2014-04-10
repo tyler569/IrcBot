@@ -17,6 +17,8 @@ class IrcBotSub(IrcBot):
     # Here Go Command Functions
 
     def add(self, sender, *args):
+        '''Add n numbers and echo the result to the user'''
+        
         if len(args) > 0:
             try:
                 self.send(str(sum([int(a) for a in args])), sender)
@@ -26,6 +28,8 @@ class IrcBotSub(IrcBot):
             self.send("add requires one or more arguments", sender)
             
     def d2bin(self, sender, *args):
+        '''Convert a whole number to binary and echo it back to the user'''
+        
         if len(args) == 1:
             try:
                 self.send(bin(int(args[0])), sender)
@@ -35,13 +39,16 @@ class IrcBotSub(IrcBot):
             self.send("d2bin required one whole number as an argument")
             
     def add_commands(self):
+        '''Adds commands to the parent object's command dictionary'''
+        #I will be attempting to do this more automatically in future
+        
         self.cmd_dict = {"add": self.add, "d2bin": self.d2bin}
 
 def main():
     '''main'''
     
     #add sys.agrv support for changing input vars to IrcBot?
-    bot = IrcBotSub(channel = "#tbottest")
+    bot = IrcBotSub()
     bot.add_commands()
     bot.autorun()
 

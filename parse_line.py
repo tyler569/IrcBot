@@ -42,7 +42,7 @@ class ParseLine(object):
             #syntax:
             # [nick/server name, username, hostname]
             
-            if self.prefix[1] in server_users:
+            if self.prefix[0] in server_users:
                 #MC server bot sent the message
                 reg_match = re.match("(\w+): (.+)", self.groups[3])
                 if reg_match is not None:
@@ -76,10 +76,7 @@ class ParseLine(object):
                 #evlautaing to False out:
                 for i in reg_iter:
                     reg_match = i.groups()
-                    print(reg_match)
                     match_array += list(filter(bool, reg_match))
-                    print(list(filter(bool, match_array)))
-                    print(match_array)
                 self.irc_cmd = match_array[0][1:]
                 #[1:] filters the command char from the command
                 if len(match_array) > 1:
