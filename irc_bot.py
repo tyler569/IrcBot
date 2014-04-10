@@ -79,8 +79,8 @@ class IrcBot(object):
         bot is in.  To PM a user, change this at call
         time to a string matching their IRC nickname'''
         
-        #sets the target to the channel if no name provided
-        #Cannot be done in def due to scope of "self"
+        #Sets the target to the channel if no name provided
+        #Can not be done in def due to scope of "self"
         target = target or self.irc_channel
         
         if self.disable_send:
@@ -100,9 +100,14 @@ class IrcBot(object):
         self.sock.send(pong.encode())
         print(pong)
         
-    def read_lines(self, sock = self.sock, recv_buffer = 1024,
+    def read_lines(self, sock = None, recv_buffer = 1024,
             delim = "\r\n"):
         #Adapted from https://synack.me/blog/using-python-tcp-sockets
+        
+        #Sets the socket to the class socket if no name provided
+        #Can not be done in def due to scope of "self"
+        sock = sock or self.sock
+        
         buffer = ""
         data = True
         while data:
@@ -118,13 +123,13 @@ class IrcBot(object):
         
         for t_line in self.read_lines():
             print(t_line)
-            print(self.cmd_dict)
             self.line = ParseLine(t_line, self.cmd_char)
             if not self.line:
                 continue
             if self.line.command == "PING":
                 self.pong(self.line.groups[3])
             if self.line.irc_cmd is not None:
+                print(self.line.irc_cmd, self.line.irc_cmd_args)
                 try:
                     self.cmd_dict[self.line.irc_cmd](self.line.sender,
                         *self.line.irc_cmd_args)

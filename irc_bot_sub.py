@@ -19,7 +19,7 @@ class IrcBotSub(IrcBot):
     def add(self, sender, *args):
         if len(args) > 0:
             try:
-                self.send(sum([int(a) for a in args]), sender)
+                self.send(str(sum([int(a) for a in args])), sender)
             except(ValueError):
                 self.send("All arguments of add must be numbers", sender)
         else:

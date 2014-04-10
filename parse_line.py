@@ -62,15 +62,30 @@ class ParseLine(object):
                 match_array = []
                 reg_iter = re.finditer(
                     "(?:(?:'(.*?)')|(?:\"(.*?)\")|(\S+))+", self.text)
+                #This match willreturn an iterator that will yield
+                #0 to many matches - it will match any word on its
+                #own or it will match entire quoted segments:
+                #ex:
+                #   The quick brown "fox jumped" 'over the'
+                #would match to:
+                #   ["The", "quick", "brown", "fox jumped", "over the"]
+                #HOWEVER:
+                #the reg_iter will return:
+                #   (None, None, "The"), (None, None, "quick")
+                #Here, I attempt to rectifiy this by filtering all values
+                #evlautaing to False out:
                 for i in reg_iter:
                     reg_match = i.groups()
-                    match_array += list(filter(bool, reg_match) )[0]
-                    self.irc_cmd = match_array[0][1:]
-                    #[1:] filters the command char from the command
-                    if len(match_array) > 1:
-                        self.irc_cmd_args = match_array[1:]
-                    else:
-                        self.irc_cmd_args = []
+                    print(reg_match)
+                    match_array += list(filter(bool, reg_match))
+                    print(list(filter(bool, match_array)))
+                    print(match_array)
+                self.irc_cmd = match_array[0][1:]
+                #[1:] filters the command char from the command
+                if len(match_array) > 1:
+                    self.irc_cmd_args = match_array[1:]
+                else:
+                    self.irc_cmd_args = []
             else:    
                 self.irc_cmd = None
         else:
