@@ -112,7 +112,7 @@ class IrcBot(object):
         data = True
         while data:
             data = sock.recv(recv_buffer)
-            buffer += data.decode()
+            buffer += data.decode('latin1')
             while buffer.find(delim) != -1:
                 line, buffer = buffer.split(delim, 1)
                 yield line

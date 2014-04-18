@@ -41,7 +41,7 @@ class ParseLine(object):
             self.prefix = reg_match.groups()
             #syntax:
             # [nick/server name, username, hostname]
-            print(self.groups, self.prefix)
+            # print(self.groups, self.prefix) # - debug
             
             if self.prefix[0] in server_users:
                 #MC server bot sent the message
